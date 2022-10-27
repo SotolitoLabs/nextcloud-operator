@@ -1,0 +1,19 @@
+domain: sotolitolabs.com
+layout:
+- go.kubebuilder.io/v3
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: nextcloud-operator
+repo: github.com/SotolitoLabs/nextcloud-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: sotolitolabs.com
+  group: nextcloud-operator
+  kind: Nextcloud
+  path: github.com/SotolitoLabs/nextcloud-operator/api/v1alpha1
+  version: v1alpha1
+version: "3"

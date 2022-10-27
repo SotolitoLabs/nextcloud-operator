@@ -1,0 +1,9 @@
+apiVersion: nextcloud-operator.sotolitolabs.com/v1alpha1
+kind: Nextcloud
+metadata:
+  name: test-nextcloud
+spec:
+  fqdn: nextcloud-test.libreoffice.gob.mx
+  #admin-password: prueba123
+  #version: 25.0.1
+

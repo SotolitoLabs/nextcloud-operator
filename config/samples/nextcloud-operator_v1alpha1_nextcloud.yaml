@@ -1,0 +1,6 @@
+apiVersion: nextcloud-operator.sotolitolabs.com/v1alpha1
+kind: Nextcloud
+metadata:
+  name: nextcloud-sample
+spec:
+  # TODO(user): Add fields here

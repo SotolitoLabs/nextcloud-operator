@@ -1,0 +1,33 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - nextcloud-operator.sotolitolabs.com
+  resources:
+  - nextclouds
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - nextcloud-operator.sotolitolabs.com
+  resources:
+  - nextclouds/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - nextcloud-operator.sotolitolabs.com
+  resources:
+  - nextclouds/status
+  verbs:
+  - get
+  - patch
+  - update

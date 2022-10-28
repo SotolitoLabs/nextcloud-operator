@@ -18,14 +18,19 @@ package controllers
 
 import (
 	"context"
+	"os"
 
+	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	nextcloudoperatorv1alpha1 "github.com/SotolitoLabs/nextcloud-operator/api/v1alpha1"
+	// temporal para probar carga de recursos desde archivos
 )
 
 // NextcloudReconciler reconciles a Nextcloud object
@@ -64,6 +69,32 @@ func (r *NextcloudReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 	logger.Info("Nextcloud instance: ", "values", nextcloud)
 
+	// Check if the deployment exists
+	deployment := &appsv1.Deployment{}
+	err = r.Get(ctx,
+		types.NamespacedName{
+			Name:      nextcloud.Name,
+			Namespace: nextcloud.Namespace,
+		},
+		deployment,
+	)
+
+	if err != nil && errors.IsNotFound(err) {
+		logger.Info("Creating Nextcloud deployment", "for:", nextcloud.Name)
+		deployment, err := r.createNextcloudDeployment(nextcloud)
+		if err != nil {
+			logger.Error(err, "Failed to create Nextcloud Deployment", "for:", nextcloud.Name)
+			return ctrl.Result{}, err
+		}
+
+		err = r.Create(ctx, deployment)
+		if err != nil {
+			logger.Error(err, "Failed to create Nextcloud Deployment", "for:", nextcloud.Name)
+			return ctrl.Result{}, err
+		}
+		return ctrl.Result{}, err
+	}
+
 	// TODO(user): your logic here
 
 	return ctrl.Result{}, nil
@@ -74,4 +105,23 @@ func (r *NextcloudReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&nextcloudoperatorv1alpha1.Nextcloud{}).
 		Complete(r)
+}
+
+// Creates a new deployment from a Nextcloud CR
+func (r *NextcloudReconciler) createNextcloudDeployment(n *nextcloudoperatorv1alpha1.Nextcloud) (*appsv1.Deployment, error) {
+	decode := scheme.Codecs.UniversalDeserializer().Decode
+	//TODO: render templates from nextcloud helm
+	// https://github.com/nextcloud/helm/blob/master/charts/nextcloud/
+	stream, _ := os.ReadFile("deployment.yaml")
+	obj, gKV, err := decode(stream, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	if gKV.Kind == "Deployment" {
+		deployment := obj.(*appsv1.Deployment)
+		deployment.Name = n.Name + "-" + deployment.Name
+		return deployment, nil
+	}
+	// Return error
+	return nil, nil
 }

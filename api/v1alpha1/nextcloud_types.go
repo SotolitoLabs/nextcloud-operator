@@ -37,7 +37,8 @@ type NextcloudSpec struct {
 	// +kubebuilder:default:=test123
 	AdminPassword string `json:"adminPassword"`
 	// +kubebuilder:validation:Optional
-	Fqdn string `json:"fqdn"`
+	Fqdn   string `json:"fqdn"`
+	DbHost string `json:"dbHost"`
 }
 
 // NextcloudStatus defines the observed state of Nextcloud

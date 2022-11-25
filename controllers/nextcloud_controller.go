@@ -73,7 +73,9 @@ func (r *NextcloudReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	deployment := &appsv1.Deployment{}
 	err = r.Get(ctx,
 		types.NamespacedName{
-			Name:      nextcloud.Name,
+			// Todo concatenate with nextcloud.spec.Name
+			//Name:      nextcloud.Name + "-" + deployment.Name,
+			Name:      nextcloud.Name + "-" + nextcloud.Name,
 			Namespace: nextcloud.Namespace,
 		},
 		deployment,
@@ -92,6 +94,7 @@ func (r *NextcloudReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 			logger.Error(err, "Failed to create Nextcloud Deployment", "for:", nextcloud.Name)
 			return ctrl.Result{}, err
 		}
+		logger.Info("Nextcloud deployment exists", "for:", nextcloud.Name)
 		return ctrl.Result{}, err
 	}
 
@@ -119,7 +122,9 @@ func (r *NextcloudReconciler) createNextcloudDeployment(n *nextcloudoperatorv1al
 	}
 	if gKV.Kind == "Deployment" {
 		deployment := obj.(*appsv1.Deployment)
-		deployment.Name = n.Name + "-" + deployment.Name
+		//deployment.Name = n.Name + "-" + deployment.Name
+		deployment.Name = n.Name + "-" + n.Name
+		ctrl.SetControllerReference(n, deployment, r.Scheme)
 		return deployment, nil
 	}
 	// Return error

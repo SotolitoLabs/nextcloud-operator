@@ -43,8 +43,12 @@ spec:
                 description: Foo is an example field of Nextcloud. Edit nextcloud_types.go
                   to remove/update InstanceSize is the T-Shirt size for the deployment
                 type: string
+              dbHost:
+                type: string
               fqdn:
                 type: string
+            required:
+            - dbHost
             type: object
           status:
             description: NextcloudStatus defines the observed state of Nextcloud
